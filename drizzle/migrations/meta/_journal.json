@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795236960061,
+      "tag": "0000_auction_platform_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795236996767,
+      "tag": "0001_product_images_storage_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795237075931,
+      "tag": "0002_seed_demo_marketplace",
+      "breakpoints": true
+    }
+  ]
+}
