@@ -16,8 +16,8 @@ export function AuctionCard({
   footer,
 }: {
   auction: AuctionWithProduct;
-  onElapsed?: () => void;
-  footer?: ReactNode;
+  onElapsed?: (() => void) | undefined;
+  footer?: ReactNode | undefined;
 }) {
   const now = useNow() || Date.now();
   const status = effectiveStatus(auction, now);

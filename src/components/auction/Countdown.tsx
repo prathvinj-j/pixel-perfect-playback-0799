@@ -11,7 +11,7 @@ export function Countdown({
 }: {
   to: string;
   className?: string;
-  onElapsed?: () => void;
+  onElapsed?: (() => void) | undefined;
 }) {
   const now = useNow();
   const p = countdownParts(to, now || Date.now());
@@ -33,7 +33,7 @@ export function CountdownBlocks({
 }: {
   to: string;
   urgent?: boolean;
-  onElapsed?: () => void;
+  onElapsed?: (() => void) | undefined;
 }) {
   const now = useNow();
   const p = countdownParts(to, now || Date.now());
