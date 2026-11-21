@@ -10,6 +10,7 @@ import { auctionKeys, featuredQuery, syncAuctionLifecycle } from "@/lib/auctions
 import { CATEGORIES, effectiveStatus, formatMoney } from "@/lib/auction-rules";
 import { useNow } from "@/hooks/use-now";
 import { useAuctionsListRealtime } from "@/hooks/use-auction-realtime";
+import { LiveActivityTicker } from "@/components/site/LiveActivityTicker";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -47,6 +48,7 @@ function Home() {
 
   return (
     <div>
+      <LiveActivityTicker />
       {/* HERO */}
       <section className="relative overflow-hidden bg-stage text-navy-foreground">
         <img
@@ -106,8 +108,8 @@ function Home() {
       </section>
 
       {/* CATEGORIES */}
-      <section className="mx-auto -mt-7 max-w-7xl px-4 sm:px-6">
-        <div className="flex gap-2 overflow-x-auto rounded-2xl border bg-card p-2 shadow-elevated">
+      <section className="relative z-10 mx-auto -mt-7 max-w-7xl px-4 sm:px-6">
+        <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border bg-card p-2.5 shadow-elevated">
           {CATEGORIES.map((c) => (
             <Link
               key={c}

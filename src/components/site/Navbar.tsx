@@ -14,6 +14,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "./Logo";
 import { NotificationBell } from "./NotificationBell";
+import { SoundToggle } from "./SoundToggle";
 import { useAuth } from "@/lib/auth";
 
 export function initials(name?: string | null) {
@@ -51,6 +52,7 @@ export function Navbar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <SoundToggle />
           {user ? (
             <>
               {isSeller && (

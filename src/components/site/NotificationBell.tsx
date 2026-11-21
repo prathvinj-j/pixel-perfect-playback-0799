@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { notificationsQuery, auctionKeys } from "@/lib/auctions";
 import { NOTIFICATION_META, type NotificationType } from "@/lib/notification-meta";
+import { playOutbidPing, playVictoryChime } from "@/lib/sound-effects";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -69,10 +70,28 @@ export function NotificationRow({
   n: { id: string; type: NotificationType; message: string; auction_id: string | null; read: boolean; created_at: string };
   compact?: boolean;
 }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
   const meta = NOTIFICATION_META[n.type];
   const Icon = meta.icon;
+
+  const handleClick = () => {
+    if (!n.read && user) {
+      void supabase
+        .from("notifications")
+        .update({ read: true })
+        .eq("id", n.id)
+        .then(() => {
+          qc.invalidateQueries({ queryKey: ["notifications", user.id] });
+        });
+    }
+  };
+
   const body = (
-    <div className={cn("flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60", !n.read && "bg-accent/40")}>
+    <div
+      onClick={handleClick}
+      className={cn("flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60 cursor-pointer", !n.read && "bg-accent/40")}
+    >
       <div className={cn("grid size-9 shrink-0 place-items-center rounded-xl", meta.tone)}>
         <Icon className="size-4" />
       </div>
@@ -87,7 +106,7 @@ export function NotificationRow({
     </div>
   );
   return n.auction_id ? (
-    <Link to="/auctions/$id" params={{ id: n.auction_id }} className="block">
+    <Link to="/auctions/$id" params={{ id: n.auction_id }} className="block" onClick={handleClick}>
       {body}
     </Link>
   ) : (
@@ -111,6 +130,8 @@ export function NotificationListener() {
           const n = payload.new as { type: NotificationType; message: string };
           const meta = NOTIFICATION_META[n.type];
           const fn = n.type === "outbid" ? toast.warning : n.type === "auction_won" || n.type === "bid_placed" ? toast.success : toast.info;
+          if (n.type === "outbid") playOutbidPing();
+          if (n.type === "auction_won") playVictoryChime();
           // Bid confirmations are already shown by the bid form itself.
           if (n.type !== "bid_placed" && n.type !== "listing_created") fn(meta.label, { description: n.message });
           qc.invalidateQueries({ queryKey: ["notifications", uid] });

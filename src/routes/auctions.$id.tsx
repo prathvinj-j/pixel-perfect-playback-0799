@@ -22,6 +22,9 @@ import { conditionLabel, effectiveStatus, formatMoney, minNextBid, validateBidAm
 import { useNow } from "@/hooks/use-now";
 import { useAuctionRealtime } from "@/hooks/use-auction-realtime";
 import { useAuth } from "@/lib/auth";
+import { BidVelocityChart } from "@/components/auction/BidVelocityChart";
+import { TrustScorecard } from "@/components/auction/TrustScorecard";
+import { playGavelStrike } from "@/lib/sound-effects";
 
 export const Route = createFileRoute("/auctions/$id")({
   head: () => ({
@@ -106,9 +109,11 @@ function AuctionDetail() {
               {auction.seller.bio && <p className="mt-2 text-sm text-muted-foreground">{auction.seller.bio}</p>}
             </div>
           )}
+          <TrustScorecard minIncrement={Number(auction.min_increment)} startingPrice={Number(auction.starting_price)} />
         </div>
         <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           <BidPanel auction={auction} status={status} onElapsed={sync} />
+          <BidVelocityChart bids={bidsQ.data ?? []} startingPrice={Number(auction.starting_price)} />
           <BidHistory bids={bidsQ.data ?? []} loading={bidsQ.isLoading} myId={user?.id} closed={closed} />
         </div>
       </div>
@@ -151,6 +156,7 @@ function BidPanel({ auction, status, onElapsed }: { auction: AuctionWithProduct;
       toast.error("Bid rejected", { description: errorMessage(e) });
     } else {
       setError(null);
+      playGavelStrike();
       toast.success("Bid placed", { description: `You're the highest bidder at ${formatMoney(Number(amount))}.` });
     }
     qc.invalidateQueries({ queryKey: auctionKeys.detail(auction.id) });
@@ -237,13 +243,35 @@ function BidPanel({ auction, status, onElapsed }: { auction: AuctionWithProduct;
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm your bid</AlertDialogTitle>
-            <AlertDialogDescription>
-              Place a binding bid of <strong>{formatMoney(Number(amount))}</strong> on "{auction.product.name}"? If someone bids higher first, your bid will be rejected and you can try again.
+            <AlertDialogDescription className="space-y-3">
+              <span>
+                Place a binding bid of <strong>{formatMoney(Number(amount))}</strong> on "{auction.product.name}"? If someone bids higher first, your bid will be rejected and you can try again.
+              </span>
+              {Number(amount) < min && (
+                <div className="rounded-xl border border-destructive/40 bg-destructive/15 p-3 text-sm text-destructive">
+                  <div className="font-semibold">⚠️ High bid just increased!</div>
+                  <div className="mt-1 text-xs text-foreground">
+                    Another bidder raised the offer. The new minimum bid required is <strong>{formatMoney(min)}</strong>.
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="hero"
+                    className="mt-2.5 w-full text-xs"
+                    onClick={() => setAmount(String(min))}
+                  >
+                    Update bid to {formatMoney(min)}
+                  </Button>
+                </div>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => { e.preventDefault(); void submit(); }} disabled={busy}>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); void submit(); }}
+              disabled={busy || Number(amount) < min}
+            >
               {busy && <Loader2 className="animate-spin" />} Place bid
             </AlertDialogAction>
           </AlertDialogFooter>

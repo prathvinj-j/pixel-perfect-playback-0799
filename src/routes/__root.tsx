@@ -16,6 +16,7 @@ import { AuthProvider } from "@/lib/auth";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { NotificationListener } from "@/components/site/NotificationBell";
+import { useAuctionLifecycleSync } from "@/hooks/use-auction-lifecycle";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -126,6 +127,11 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function AppLifecycle() {
+  useAuctionLifecycleSync();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -141,6 +147,7 @@ function RootComponent() {
           <Footer />
         </div>
         <NotificationListener />
+        <AppLifecycle />
         <Toaster richColors position="top-right" closeButton />
       </AuthProvider>
     </QueryClientProvider>

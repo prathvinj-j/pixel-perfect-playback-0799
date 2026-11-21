@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/site/EmptyState";
 import { auctionKeys, marketQuery, syncAuctionLifecycle, type MarketSort, type MarketTab } from "@/lib/auctions";
 import { CATEGORIES } from "@/lib/auction-rules";
 import { useAuctionsListRealtime } from "@/hooks/use-auction-realtime";
+import { LiveActivityTicker } from "@/components/site/LiveActivityTicker";
 import { cn } from "@/lib/utils";
 
 const TABS: { value: MarketTab; label: string }[] = [
@@ -84,6 +85,7 @@ function Marketplace() {
 
   return (
     <div>
+      <LiveActivityTicker />
       <section className="bg-stage text-navy-foreground">
         <div className="mx-auto max-w-7xl px-4 pb-10 pt-10 sm:px-6">
           <h1 className="text-3xl font-bold sm:text-4xl">Marketplace</h1>
